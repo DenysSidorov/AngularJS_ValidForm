@@ -4,29 +4,19 @@
 
     <title>Showing an error message</title>
 
-    <!--
-        В данном примере валидация формы происходит только после нажатия на кнопку submit
-        Для этого на форме установлена директива ng-submit с функцией, которая в качестве
-        параметра принимает объект заполняемый в форме и свойство определяющее валидность формы.
-    -->
-
-    <script src="../Libraries/angular.js"></script>
-    <link href="../Libraries/bootstrap-theme.css" rel="stylesheet" />
-    <link href="../Libraries/bootstrap.css" rel="stylesheet" />
+    <script src="Libraries/angular.js"></script>
+    <link href="Libraries/bootstrap-theme.css" rel="stylesheet" />
+    <link href="Libraries/bootstrap.css" rel="stylesheet" />
 
     <script>
         angular.module("sampleApp", [])
             .controller("defaultCtrl", function ($scope) {
-
-                $scope.addNewUser = function (userDetails, isvalid) {
-                    if (isvalid) {
-                        $scope.message = userDetails.name + " " + userDetails.email;
-                    }
-                    else {
-                        $scope.message = "Error";
-                        $scope.showError = true;
-                    }
+                $scope.addNewUser = function (userDetails) {
+                    $scope.message = userDetails.name
+                        + " (" + userDetails.email + ") (" + userDetails.agreed + ")";
                 }
+
+                $scope.message = "Ready";
 
                 // Для многих элементов форм ошибки могут быть одинаковыми, для того чтобы избавиться от дублирования кода
                 // можно использовать методы подобные getError
@@ -34,8 +24,9 @@
                     if (angular.isDefined(error)) {
                         if (error.required) {
                             return "Поле не должно быть пустым";
-                        } if (error.email) {
+                        } else if (error.email) {
                             return "Введите праивльный email";
+
                         }
                     }
                 }
@@ -72,15 +63,12 @@
 </head>
 <body>
     <div class="panel" style="width:300px" ng-controller="defaultCtrl">
-        <form name="myForm" novalidate ng-submit="addNewUser(newUser, myForm.$valid)">
+        <form name="myForm" novalidate ng-submit="addNewUser(newUser)">
             <div class="well">
 
                 <div class="form-group">
                     <label>Name:</label>
                     <input name="userName" type="text" class="form-control" required ng-model="newUser.name">
-                    <div class="error" ng-show="showError">
-                        {{getError(myForm.userName.$error)}}
-                    </div>
                 </div>
 
                 <div class="form-group">
@@ -91,13 +79,18 @@
                         Если userName был изменен myForm.userEmail.$dirty == true и его формат не правильный myForm.userEmail.$invalid == true
                         Отобразить div в котором вывести сообщение соответствующее типу ошибки
                     -->
-                    <div class="error" ng-show="showError">
+                    <div class="error" ng-show="myForm.userEmail.$invalid && myForm.userEmail.$dirty">
                         {{getError(myForm.userEmail.$error)}}
                     </div>
 
                 </div>
-
-                <button type="submit" class="btn btn-primary btn-block">
+                <div class="checkbox">
+                    <label>
+                        <input name="agreed" type="checkbox" ng-model="newUser.agreed" required>
+                        Согласен с условиями использования
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" ng-disabled="myForm.$invalid">
                     OK
                 </button>
             </div>
